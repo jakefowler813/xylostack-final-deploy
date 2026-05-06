@@ -30,6 +30,11 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 # ALLOWED_HOSTS must include your DigitalOcean URL and your custom domain
 ALLOWED_HOSTS = ['finalproject.jakef.tech', '.ondigitalocean.app', '127.0.0.1', 'localhost']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://xylostack-yy5yk.ondigitalocean.app',
+    'https://finalproject.jakef.tech',
+]
+
 
 # Application definition
 
