@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Confirm Deletion</h4>
+                </div>
+                <div class="card-body text-center">
+                    <p class="lead">Are you sure you want to delete <strong>"{{ song.title }}"</strong>?</p>
+                    <p class="text-muted">This action cannot be undone. This song will be removed from your personal library and the community API.</p>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">Yes, Delete Song</button>
+                            <a href="{% url 'song_list' %}" class="btn btn-outline-secondary">Cancel and Go Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -136,6 +136,42 @@ def song_detail_api(request, song_id):
     return JsonResponse(data)
 
 @login_required
+def edit_song(request, song_id):
+    song = get_object_or_404(Song, id=song_id)
+    
+    # Permission Gate
+    if song.author != request.user and not request.user.is_staff:
+        messages.error(request, "Access denied: You can only edit your own compositions.")
+        return redirect('song_list')
+
+    if request.method == "POST":
+        form = SongForm(request.POST, instance=song)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"'{song.title}' updated successfully.")
+            return redirect('song_list')
+    else:
+        form = SongForm(instance=song)
+        
+    return render(request, 'core/edit_song.html', {'form': form, 'song': song})
+
+@login_required
+def delete_song(request, song_id):
+    song = get_object_or_404(Song, id=song_id)
+    
+    # Permission Gate
+    if song.author != request.user and not request.user.is_staff:
+        messages.error(request, "Access denied: You cannot delete this song.")
+        return redirect('song_list')
+
+    if request.method == "POST":
+        song.delete()
+        messages.warning(request, f"Song '{song.title}' has been permanently removed.")
+        return redirect('song_list')
+        
+    return render(request, 'core/delete_song_confirm.html', {'song': song})
+
+@login_required
 def play_song(request, song_id, stack_id):
     song = get_object_or_404(Song, id=song_id)
     stack = get_object_or_404(InstrumentStack, id=stack_id, owner=request.user)

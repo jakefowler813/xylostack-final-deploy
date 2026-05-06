@@ -6,21 +6,41 @@
         <div>
             <h1 class="display-4 mb-0">🎵 Song Library</h1>
             {% if stack_id %}
-                <p class="text-success font-weight-bold">✓ Instrument Stack Selected. Pick a song to play!</p>
+                <p class="text-success font-weight-bold">
+                    <i class="bi bi-check-circle-fill"></i> Instrument Stack Selected. Pick a song to play!
+                </p>
             {% else %}
-                <p class="text-muted">Browse songs or go to your dashboard to select an instrument.</p>
+                <p class="text-muted">Explore community classics or your personal studio compositions.</p>
             {% endif %}
         </div>
-        <a href="{% url 'add_song' %}" class="btn btn-primary btn-lg shadow-sm">+ Create Song</a>
+        <a href="{% url 'add_song' %}" class="btn btn-primary btn-lg shadow-sm">
+            <i class="bi bi-plus-circle"></i> Create New Song
+        </a>
     </div>
 
-    <form action="{% url 'song_list' %}" method="get" class="mb-5">
-        {% if stack_id %}<input type="hidden" name="stack" value="{{ stack_id }}">{% endif %}
-        <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="Search songs..." value="{{ request.GET.q|default:'' }}">
-            <button class="btn btn-secondary" type="submit">Search</button>
+    <div class="card mb-5 border-0 shadow-sm bg-light">
+        <div class="card-body">
+            <form action="{% url 'song_list' %}" method="get" class="row g-3">
+                {% if stack_id %}
+                    <input type="hidden" name="stack" value="{{ stack_id }}">
+                {% endif %}
+                
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" name="q" class="form-control border-start-0 ps-0" 
+                               placeholder="Search for a song title..." 
+                               value="{{ request.GET.q|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-secondary" type="submit">Search</button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 
     <div class="row">
         {% for song in songs %}
@@ -29,28 +49,76 @@
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h5 class="card-title mb-0">{{ song.title }}</h5>
-                        {% if song.is_public %}<span class="badge bg-info text-dark">Universal</span>{% endif %}
+                        {% if song.is_public %}
+                            <span class="badge bg-info text-dark">Universal</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Personal</span>
+                        {% endif %}
                     </div>
-                    <p class="text-muted small">By {{ song.author|default:"Admin" }} | {{ song.tempo_bpm }} BPM</p>
                     
+                    <p class="text-muted small mb-3">
+                        <strong>Author:</strong> {{ song.author|default:"Admin" }}<br>
+                        <strong>Tempo:</strong> {{ song.tempo_bpm }} BPM
+                    </p>
+
+                    <p class="card-text mb-4">
+                        <small class="text-muted">
+                            <strong>Preview:</strong> {{ song.note_sequence|truncatechars:45 }}
+                        </small>
+                    </p>
+
                     <div class="mt-auto">
-                        <div class="d-grid">
+                        <div class="d-grid gap-2">
                             {% if stack_id %}
-                                <a href="{% url 'play_song' song.id stack_id %}" class="btn btn-success">▶ Play Now</a>
+                                <a href="{% url 'play_song' song.id stack_id %}" class="btn btn-success">
+                                    <i class="bi bi-play-fill"></i> Play with Selected Stack
+                                </a>
                             {% else %}
-                                <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">Select Stack to Play</a>
+                                <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+                                    Select a Stack to Play
+                                </a>
+                            {% endif %}
+
+                            {% if song.author == request.user or request.user.is_staff %}
+                                <div class="d-flex justify-content-between mt-2 pt-2 border-top">
+                                    <a href="{% url 'edit_song' song.id %}" class="btn btn-sm btn-outline-secondary flex-grow-1 me-1">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a href="{% url 'delete_song' song.id %}" class="btn btn-sm btn-outline-danger flex-grow-1 ms-1">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="mb-3">
+                <i class="bi bi-music-note-list display-1 text-muted"></i>
+            </div>
+            <h3>No songs found</h3>
+            <p class="text-muted">Try a different search term or be the first to compose a new melody!</p>
+            <a href="{% url 'add_song' %}" class="btn btn-primary mt-2">Create a Song</a>
+        </div>
         {% endfor %}
     </div>
 </div>
 
 <style>
-    .hover-shadow:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
-    .transition { transition: all 0.3s ease; }
+    /* Subtle polish for the final demo */
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .transition {
+        transition: all 0.3s ease-in-out;
+    }
+    .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+    }
 </style>
 {% endblock %}

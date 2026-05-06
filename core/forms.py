@@ -23,7 +23,10 @@ KeyFormSet = inlineformset_factory(
 class SongForm(forms.ModelForm):
     class Meta:
         model = Song
-        fields = ['title', 'note_sequence', 'tempo_bpm']
+        fields = ['title', 'note_sequence', 'tempo_bpm', 'is_public'] 
         widgets = {
-            'note_sequence': forms.Textarea(attrs={'placeholder': 'e.g. ["C4", "E4"]', 'rows': 3}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'note_sequence': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': '["C4", "E4", "G4"]'}),
+            'tempo_bpm': forms.NumberInput(attrs={'class': 'form-control'}),
+            'is_public': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
