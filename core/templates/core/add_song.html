@@ -18,11 +18,9 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        
                         <div class="mb-3">
                             <label class="form-label font-weight-bold">Song Title</label>
                             {{ form.title }}
-                            <small class="text-muted">Give your masterpiece a name.</small>
                         </div>
 
                         <div class="row">
@@ -52,16 +50,16 @@
             </div>
 
             <div class="mt-4">
-                <h5>Common Sequences</h5>
+                <h5>Quick Templates (Click to Copy)</h5>
                 <div class="card">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span><strong>C-Major:</strong> <code>["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"]</code></span>
-                            <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('[\"C4\", \"D4\", \"E4\", \"F4\", \"G4\", \"A4\", \"B4\", \"C5\"]')">Copy</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="copySequence('C-Major')">Copy</button>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span><strong>Arpeggio:</strong> <code>["C4", "E4", "G4", "C5", "G4", "E4", "C4"]</code></span>
-                            <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('[\"C4\", \"E4\", \"G4\", \"C5\", \"G4\", \"E4\", \"C4\"]')">Copy</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="copySequence('Arpeggio')">Copy</button>
                         </li>
                     </ul>
                 </div>
@@ -71,9 +69,23 @@
 </div>
 
 <script>
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text);
-        alert("Sequence copied! Paste it into the Note Sequence box.");
+    function copySequence(type) {
+        const sequences = {
+            'C-Major': '["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"]',
+            'Arpeggio': '["C4", "E4", "G4", "C5", "G4", "E4", "C4"]'
+        };
+        const text = sequences[type];
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Sequence copied!");
+        }).catch(err => {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert("Sequence copied!");
+        });
     }
 </script>
 {% endblock %}

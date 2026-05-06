@@ -1,55 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-5">
-    <div>
-        <h2 class="fw-800 mb-1">My Instrument Stacks</h2>
-        <p class="text-muted mb-0">Manage your custom color mappings below.</p>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Your Instrument Stacks</h1>
+        <a href="{% url 'add_stack' %}" class="btn btn-success">+ New Stack</a>
     </div>
-    <a href="{% url 'add_stack' %}" class="btn btn-primary btn-lg shadow-sm px-4">
-        + New Stack
-    </a>
-</div>
 
-<div class="row g-4">
-    {% for stack in stacks %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden transition-hover">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="card-title fw-bold mb-0 text-dark">{{ stack.title }}</h5>
-                        <span class="badge bg-light text-dark border rounded-pill px-3">{{ stack.keys.count }} Keys</span>
-                    </div>
-                    <p class="text-muted small mb-4">Saved on {{ stack.created_at|date:"M d, Y" }}</p>
-                    
-                    <div class="d-flex gap-2">
-                        <a href="{% url 'edit_stack' stack.id %}" class="btn btn-sm btn-outline-secondary px-3">Edit</a>
-                        <a href="{% url 'delete_stack' stack.id %}" class="btn btn-sm btn-outline-danger px-3">Delete</a>
-                    </div>
+    <div class="row">
+        {% for stack in stacks %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <span>{{ stack.title }}</span>
+                    <span class="badge bg-secondary">{{ stack.keys.count }} Keys</span>
                 </div>
-                <div class="card-footer bg-light border-0 p-3">
-                    <a href="{% url 'song_list' %}" class="btn btn-primary w-100 py-2">Open Song Library</a>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'song_list' %}?stack={{ stack.id }}" class="btn btn-primary">
+                            🎹 Play a Song
+                        </a>
+                        <div class="btn-group">
+                            <a href="{% url 'edit_stack' stack.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <a href="{% url 'delete_stack' stack.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    {% empty %}
-        <div class="col-12 text-center py-5 border-dashed rounded-5">
-            <div class="py-5">
-                <h1 class="display-3 mb-3">🎵</h1>
-                <h3 class="fw-bold">No Instruments Found</h3>
-                <p class="text-muted mb-4">Start by creating a stack that matches your physical xylophone or piano.</p>
-                <a href="{% url 'add_stack' %}" class="btn btn-primary btn-lg px-5 shadow">Create First Stack</a>
-            </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">You haven't created any instrument stacks yet.</p>
+            <a href="{% url 'add_stack' %}" class="btn btn-primary">Create Your First Stack</a>
         </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
 </div>
-
-<style>
-    .transition-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .transition-hover:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 1rem 3rem rgba(0,0,0,.08) !important;
-    }
-    .border-dashed { border: 2px dashed #dee2e6; }
-</style>
 {% endblock %}

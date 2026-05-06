@@ -86,12 +86,11 @@ def edit_stack(request, stack_id):
 
 def song_list(request):
     query = request.GET.get('q')
+    selected_stack_id = request.GET.get('stack') # Look for ?stack=ID
     
-    # Filter: Show public songs OR songs user created themself
     if request.user.is_authenticated:
         base_songs = Song.objects.filter(Q(is_public=True) | Q(author=request.user))
     else:
-        # If not logged in, only show public songs
         base_songs = Song.objects.filter(is_public=True)
 
     if query:
@@ -99,7 +98,10 @@ def song_list(request):
     else:
         songs = base_songs
         
-    return render(request, 'core/song_list.html', {'songs': songs})
+    return render(request, 'core/song_list.html', {
+        'songs': songs,
+        'stack_id': selected_stack_id # Pass the stack ID to the template
+    })
 
 def song_detail_api(request, song_id):
     # This fetches the song data as a dictionary
