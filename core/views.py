@@ -103,15 +103,36 @@ def song_list(request):
         'stack_id': selected_stack_id # Pass the stack ID to the template
     })
 
+def song_list_api(request):
+    # Fetch all songs that are marked as public
+    songs = Song.objects.filter(is_public=True)
+    
+    # Create a list of dictionaries for the JSON response
+    song_data = []
+    for song in songs:
+        song_data.append({
+            "id": song.id,
+            "title": song.title,
+            "tempo": song.tempo_bpm,
+            "notes": song.note_sequence,
+            "author": str(song.author) if song.author else "Admin"
+        })
+    
+    # safe=False is required when returning a list instead of a dictionary
+    return JsonResponse(song_data, safe=False)
+
 def song_detail_api(request, song_id):
-    # This fetches the song data as a dictionary
+    # Fetch a single song or 404 if it doesn't exist
     song = get_object_or_404(Song, id=song_id)
+    
+    # Return just the data for this one specific song
     data = {
+        "id": song.id,
         "title": song.title,
         "notes": song.note_sequence,
-        "bpm": song.tempo_bpm
+        "bpm": song.tempo_bpm,
+        "author": str(song.author) if song.author else "Admin"
     }
-    # This turns the dictionary into a JSON response the browser can read
     return JsonResponse(data)
 
 @login_required

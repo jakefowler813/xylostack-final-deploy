@@ -27,6 +27,7 @@ urlpatterns = [
     path('dashboard/new/', views.add_stack, name='add_stack'),
     path('dashboard/edit/<int:stack_id>/', views.edit_stack, name='edit_stack'),
     path('songs/', views.song_list, name='song_list'),
+    path('api/songs/', views.song_list_api, name='song_list_api'),
     path('api/songs/<int:song_id>/', views.song_detail_api, name='song_detail_api'),
     path('play/<int:song_id>/<int:stack_id>/', views.play_song, name='play_song'),
     path('help/', views.help_page, name='help_page'),
