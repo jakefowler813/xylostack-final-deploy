@@ -1,0 +1,18 @@
+# Python
+venv/
+*.pyc
+__pycache__/
+
+# Databases
+db.sqlite3
+
+# OS specific files
+.DS_Store
+
+# Environments
+.env
+.venv
+env/
+
+# Static files (handled by WhiteNoise)
+staticfiles/
