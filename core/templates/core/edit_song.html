@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'song_list' %}">Library</a></li>
+                    <li class="breadcrumb-item active">Edit Song</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow border-info">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">Edit: {{ song.title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Song Title</label>
+                            {{ form.title }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label font-weight-bold">Tempo (BPM)</label>
+                                {{ form.tempo_bpm }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Note Sequence (JSON Format)</label>
+                            {{ form.note_sequence }}
+                            <div class="alert alert-secondary mt-2 py-2">
+                                <small>
+                                    <strong>Format Reminder:</strong> <code>["C4", "E4", "G4"]</code>
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                {{ form.is_public }}
+                                <label class="form-check-label font-weight-bold" for="{{ form.is_public.id_for_label }}">
+                                    Make this song Public (Visible to the community)
+                                </label>
+                            </div>
+                            <small class="text-muted">Public songs appear in the global library and API.</small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'song_list' %}" class="btn btn-outline-secondary me-md-2">Discard Changes</a>
+                            <button type="submit" class="btn btn-info text-white px-5">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h5>Reference Sequences</h5>
+                <div class="card bg-light">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                            <span><strong>C-Major:</strong> <code>["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"]</code></span>
+                            <button class="btn btn-sm btn-outline-info" onclick="copySequence('C-Major')">Copy</button>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                            <span><strong>Arpeggio:</strong> <code>["C4", "E4", "G4", "C5", "G4", "E4", "C4"]</code></span>
+                            <button class="btn btn-sm btn-outline-info" onclick="copySequence('Arpeggio')">Copy</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copySequence(type) {
+        const sequences = {
+            'C-Major': '["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"]',
+            'Arpeggio': '["C4", "E4", "G4", "C5", "G4", "E4", "C4"]'
+        };
+        const text = sequences[type];
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Sequence copied to clipboard!");
+        });
+    }
+</script>
+{% endblock %}
