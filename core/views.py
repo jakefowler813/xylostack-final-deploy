@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import InstrumentStack, Song, XyloKey
 from django.shortcuts import redirect, get_object_or_404
-from .forms import StackForm, KeyFormSet, inlineformset_factory
+from .forms import StackForm, KeyFormSet, inlineformset_factory, SongForm
 from django.http import JsonResponse 
 from django.contrib import messages
 from django import forms
