@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-local-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 # ALLOWED_HOSTS must include your DigitalOcean URL and your custom domain
-ALLOWED_HOSTS = ['finalproject.jakef.tech', '.ondigitalocean.app', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['xylostack-yy5yk.ondigitalocean.app', 'finalproject.jakef.tech', 'localhost', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://xylostack-yy5yk.ondigitalocean.app',
@@ -99,8 +99,6 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     'default': dj_database_url.config(
-        # This fallback ensures that if the environment variable is missing or empty,
-        # it defaults to local SQLite file instead of crashing.
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600
     )
