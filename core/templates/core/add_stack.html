@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="mb-5 text-center">
+    <h2 class="fw-800 display-6">Create New Instrument</h2>
+    <p class="text-muted">Map your physical hardware colors to musical pitches.</p>
+</div>
+
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-3">
+        <h6 class="text-uppercase fw-bold text-indigo small"><i class="bi bi-eye me-2"></i>Live Preview</h6>
+        <span class="badge bg-indigo rounded-pill px-3 py-2" id="key-count">0 Keys</span>
+    </div>
+    <div id="live-preview" class="p-4 bg-dark rounded-4 shadow-lg d-flex justify-content-center flex-wrap gap-3" style="min-height: 150px; border: 4px solid #1e293b;">
+        <p class="text-white opacity-25 m-auto">Add a key below to begin...</p>
+    </div>
+</div>
+
+<form method="post" id="stack-form">
+    {% csrf_token %}
+    
+    <div class="card border-0 bg-white p-4 rounded-4 mb-5 shadow-sm border-start border-4 border-warning">
+        <h5 class="fw-bold mb-3">1. Instrument Identity</h5>
+        {{ form|crispy }}
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0">2. Key Mappings</h5>
+        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="add-key-btn">
+            <i class="bi bi-plus-circle me-1"></i> Add Key
+        </button>
+    </div>
+
+    {{ formset.management_form }}
+    <div id="formset-container" class="row g-4">
+        {% for k_form in formset %}
+            <div class="col-md-4 col-lg-3 key-form-row">
+                <div class="card p-4 border-0 shadow-sm rounded-4 h-100 bg-white border-top border-4 border-indigo">
+                    <div class="d-flex justify-content-end mb-2">
+                        <button type="button" class="btn btn-link text-danger p-0 remove-row-btn"><i class="bi bi-trash3-fill"></i></button>
+                    </div>
+                    {{ k_form.pitch|as_crispy_field }}
+                    {{ k_form.color_hex|as_crispy_field }}
+                    {{ k_form.order }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="empty-form" style="display:none;">
+        <div class="col-md-4 col-lg-3 key-form-row is-new-row">
+            <div class="card p-4 border-0 shadow-sm rounded-4 h-100 bg-white border-top border-4 border-indigo">
+                <div class="d-flex justify-content-end mb-2">
+                    <button type="button" class="btn btn-link text-danger p-0 remove-row-btn"><i class="bi bi-trash3-fill"></i></button>
+                </div>
+                {{ formset.empty_form.pitch|as_crispy_field }}
+                {{ formset.empty_form.color_hex|as_crispy_field }}
+                {{ formset.empty_form.order }}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5 d-flex gap-3">
+        <button type="submit" class="btn btn-primary btn-lg px-5 shadow"><i class="bi bi-save me-2"></i>Save Instrument</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-link text-muted text-decoration-none">Cancel</a>
+    </div>
+</form>
+
+<style>
+    .text-indigo { color: #6366F1; }
+    .bg-indigo { background-color: #6366F1; }
+    .preview-key {
+        width: 65px; height: 95px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-weight: 900; font-size: 1.1rem;
+        box-shadow: inset 0 -6px 0 rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.4);
+        border: 2px solid rgba(255,255,255,0.15);
+        animation: keyPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes keyPop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('formset-container');
+    const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
+    const addBtn = document.getElementById('add-key-btn');
+    const emptyFormHtml = document.getElementById('empty-form').innerHTML;
+    const stackForm = document.getElementById('stack-form');
+
+    addBtn.addEventListener('click', function() {
+        const count = document.querySelectorAll('.key-form-row').length;
+        const newRow = emptyFormHtml.replace(/__prefix__/g, count);
+        container.insertAdjacentHTML('beforeend', newRow);
+        totalForms.value = count + 1;
+        updatePreview();
+    });
+
+    container.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-row-btn')) {
+            e.target.closest('.key-form-row').remove();
+            updatePreview();
+        }
+    });
+
+    stackForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Stop the form to clean it
+        const rows = Array.from(document.querySelectorAll('.key-form-row'));
+        let validIndex = 0;
+
+        rows.forEach((row) => {
+            const pitchInput = row.querySelector('input[name*="-pitch"]');
+            if (!pitchInput || !pitchInput.value.trim()) {
+                row.remove(); // Physically delete blank cards
+            } else {
+                const inputs = row.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    input.name = input.name.replace(/-\d+-/, `-${validIndex}-`);
+                    input.id = input.id.replace(/-\d+-/, `-${validIndex}-`);
+                    if (input.name.includes('-order')) input.value = validIndex;
+                });
+                validIndex++;
+            }
+        });
+
+        totalForms.value = validIndex;
+        if (validIndex > 0) {
+            stackForm.submit();
+        } else {
+            alert("Please fill out at least one key.");
+            window.location.reload(); // Reset to show the 8 blanks again
+        }
+    });
+
+    function updatePreview() {
+        const preview = document.getElementById('live-preview');
+        const badge = document.getElementById('key-count');
+        const rows = document.querySelectorAll('.key-form-row');
+        let count = 0; preview.innerHTML = '';
+        rows.forEach(row => {
+            const pitch = row.querySelector('input[name*="-pitch"]');
+            const color = row.querySelector('input[name*="-color_hex"]');
+            if (pitch && pitch.value.trim()) {
+                count++;
+                const key = document.createElement('div');
+                key.className = 'preview-key';
+                key.style.backgroundColor = color.value;
+                key.innerText = pitch.value.toUpperCase();
+                preview.appendChild(key);
+            }
+        });
+        badge.innerText = `${count} Keys Defined`;
+        if (count === 0) preview.innerHTML = '<p class="text-white opacity-25 m-auto">Add a key to begin...</p>';
+    }
+    document.addEventListener('input', updatePreview);
+    updatePreview();
+});
+</script>
+{% endblock %}

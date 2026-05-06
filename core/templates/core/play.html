@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .game-viewport {
+        position: relative;
+        height: 400px;
+        background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+        border: 4px solid #334155;
+        border-radius: 1.5rem;
+        overflow: hidden;
+    }
+    .playhead-line {
+        position: absolute; bottom: 80px; left: 0; right: 0;
+        height: 3px; background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); z-index: 2;
+    }
+    .note-block {
+        width: 65px; height: 50px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-weight: 800; cursor: pointer;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+        box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .note-block:active { transform: scale(0.92); }
+</style>
+
+<div class="row align-items-center mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-800 mb-0">{{ song.title }}</h2>
+        <p class="text-muted small mb-0">Playing on Instrument: <strong>{{ stack.title }}</strong></p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <span class="badge bg-dark px-3 py-2 me-2">{{ song.tempo_bpm }} BPM</span>
+        <a href="{% url 'song_list' %}" class="btn btn-outline-secondary btn-sm">Exit Player</a>
+    </div>
+</div>
+
+<div class="game-viewport shadow-lg mb-4">
+    <div class="playhead-line"></div>
+    <div class="h-100 w-100 overflow-auto">
+        <div class="d-flex align-items-end h-100 p-5 gap-3">
+            {% for note in colored_notes %}
+                <div class="note-block" style="background-color: {{ note.color }};" onclick="playNote('{{ note.pitch }}')">
+                    {{ note.pitch }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-light border-0 shadow-sm rounded-4">
+    <div class="d-flex align-items-center">
+        <div class="fs-3 me-3">💡</div>
+        <div>
+            <strong>Interactive Mode:</strong> Click the notes above to hear them play! 
+            The visual layout matches your <strong>{{ stack.title }}</strong> configuration.
+        </div>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const frequencies = {
+        'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
+        'G4': 392.00, 'A4': 440.00, 'B4': 493.88, 'C5': 523.25,
+        'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99
+    };
+
+    function playNote(pitch) {
+        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(frequencies[pitch] || 440, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.8);
+    }
+</script>
+{% endblock %}

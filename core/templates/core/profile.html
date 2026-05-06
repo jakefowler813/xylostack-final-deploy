@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>User Profile</h2>
+<div class="card p-3">
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+    <p><strong>Total Stacks Created:</strong> {{ user.instrumentstack_set.count }}</p>
+</div>
+{% endblock %}

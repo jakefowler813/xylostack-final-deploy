@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-3 fw-bold mb-3">Play Music by Color</h1>
+    <p class="lead text-muted mb-5">
+        XyloStack maps your favorite songs to your specific instrument's colors. 
+        Perfect for beginners, educators, and visual learners.
+    </p>
+    
+    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mb-5">
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg px-5 shadow">My Dashboard</a>
+            <a href="{% url 'song_list' %}" class="btn btn-outline-dark btn-lg px-5">Song Library</a>
+        {% else %}
+            <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg px-5 shadow">Get Started</a>
+            <a href="{% url 'account_login' %}" class="btn btn-outline-dark btn-lg px-5">Login</a>
+        {% endif %}
+    </div>
+
+    <div class="row g-4 py-5">
+        <div class="col-md-4">
+            <div class="p-4 border rounded-4 bg-light h-100">
+                <h3 class="h5 fw-bold">1. Map Your Colors</h3>
+                <p class="small text-muted mb-0">Tell the app exactly what colors are on your physical instrument.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 border rounded-4 bg-light h-100">
+                <h3 class="h5 fw-bold">2. Choose a Song</h3>
+                <p class="small text-muted mb-0">Pick a melody from our library or check out the API data.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 border rounded-4 bg-light h-100">
+                <h3 class="h5 fw-bold">3. Play & Learn</h3>
+                <p class="small text-muted mb-0">Watch the notes fall in your specific color scheme. No sheet music required.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

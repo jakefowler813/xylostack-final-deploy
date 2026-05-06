@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center py-5">
+    <div class="mb-4">
+        <h1 class="display-1 fw-bold text-danger">404</h1>
+    </div>
+    
+    <h2 class="mb-3">Note Not Found!</h2>
+    <p class="lead text-muted mb-5">
+        It looks like you've hit a sour note. The page you're looking for doesn't exist or has been moved.
+    </p>
+
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="{% url 'home' %}" class="btn btn-primary btn-lg px-4 gap-3">Return Home</a>
+        <a href="{% url 'song_list' %}" class="btn btn-outline-secondary btn-lg px-4">Browse Songs</a>
+    </div>
+</div>
+
+<div class="mt-5 text-center">
+    <small class="text-muted">If you think this is a mistake, please contact support.</small>
+</div>
+{% endblock %}

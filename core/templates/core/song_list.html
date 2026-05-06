@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Song Library</h2>
+</div>
+
+<form method="GET" action="{% url 'song_list' %}" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Search for a song (e.g. Twinkle)..." value="{{ request.GET.q }}">
+        <button class="btn btn-primary" type="submit">Search</button>
+        {% if request.GET.q %}
+            <a href="{% url 'song_list' %}" class="btn btn-outline-secondary">Clear</a>
+        {% endif %}
+    </div>
+</form>
+
+<div class="list-group">
+    {% for song in songs %}
+        <div class="list-group-item d-flex justify-content-between align-items-center p-3">
+            <div>
+                <h5 class="mb-1">{{ song.title }}</h5>
+                <small class="badge bg-secondary">{{ song.tempo_bpm }} BPM</small>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'song_detail_api' song.id %}" class="btn btn-sm btn-outline-info" target="_blank">
+                    View JSON
+                </a>
+
+                <div class="dropdown">
+                    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Play With...
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li class="dropdown-header">Select Instrument</li>
+                        {% for stack in user.instrumentstack_set.all %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'play_song' song.id stack.id %}">
+                                    {{ stack.title }}
+                                </a>
+                            </li>
+                        {% empty %}
+                            <li><span class="dropdown-item-text text-muted">No stacks found.</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-primary" href="{% url 'add_stack' %}">Create a Stack</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="alert alert-light border text-center py-5">
+            <p class="mb-0 text-muted">No songs matching your search were found.</p>
+            <a href="{% url 'song_list' %}" class="btn btn-link">View all songs</a>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="mt-4 text-center">
+    <p class="text-muted small">Can't find a song? Admin users can add more via the <a href="/admin/">Django Admin</a>.</p>
+</div>
+{% endblock %}
