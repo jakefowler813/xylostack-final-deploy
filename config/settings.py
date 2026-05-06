@@ -94,6 +94,8 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     'default': dj_database_url.config(
+        # This fallback ensures that if the environment variable is missing or empty,
+        # it defaults to local SQLite file instead of crashing.
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600
     )
