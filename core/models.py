@@ -25,6 +25,7 @@ class Song(models.Model):
     title = models.CharField(max_length=200)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     tempo_bpm = models.PositiveIntegerField(default=120)
+    is_public = models.BooleanField(default=False, help_text="Check this to make the song visible to everyone.")
     # This stores the sequence of notes as a simple list/JSON
     # e.g., ["C4", "C4", "G4", "G4"]
     note_sequence = models.JSONField(help_text="A list of pitches in order")

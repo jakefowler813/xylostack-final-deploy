@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import InstrumentStack, XyloKey
+from .models import InstrumentStack, XyloKey, Song
 
 class StackForm(forms.ModelForm):
     class Meta:
@@ -19,3 +19,11 @@ KeyFormSet = inlineformset_factory(
         'order': forms.HiddenInput(), # Hide this from the user
     }
 )
+
+class SongForm(forms.ModelForm):
+    class Meta:
+        model = Song
+        fields = ['title', 'note_sequence', 'tempo_bpm']
+        widgets = {
+            'note_sequence': forms.Textarea(attrs={'placeholder': 'e.g. ["C4", "E4"]', 'rows': 3}),
+        }

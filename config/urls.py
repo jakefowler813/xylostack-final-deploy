@@ -17,19 +17,19 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from core.views import home, dashboard, delete_stack, add_stack, edit_stack, song_list, song_detail_api, play_song, help_page, profile
-
+from core import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')), # Handles login/signup
-    path('', home, name='home'),
-    path('dashboard/', dashboard, name='dashboard'),
-    path('dashboard/delete/<int:stack_id>/', delete_stack, name='delete_stack'),
-    path('dashboard/new/', add_stack, name='add_stack'),
-    path('dashboard/edit/<int:stack_id>/', edit_stack, name='edit_stack'),
-    path('songs/', song_list, name='song_list'),
-    path('api/songs/<int:song_id>/', song_detail_api, name='song_detail_api'),
-    path('play/<int:song_id>/<int:stack_id>/', play_song, name='play_song'),
-    path('help/', help_page, name='help_page'),
-    path('profile/', profile, name='profile'),
+    path('', views.home, name='home'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/delete/<int:stack_id>/', views.delete_stack, name='delete_stack'),
+    path('dashboard/new/', views.add_stack, name='add_stack'),
+    path('dashboard/edit/<int:stack_id>/', views.edit_stack, name='edit_stack'),
+    path('songs/', views.song_list, name='song_list'),
+    path('api/songs/<int:song_id>/', views.song_detail_api, name='song_detail_api'),
+    path('play/<int:song_id>/<int:stack_id>/', views.play_song, name='play_song'),
+    path('help/', views.help_page, name='help_page'),
+    path('profile/', views.profile, name='profile'),
+    path('songs/add/', views.add_song, name='add_song'),
 ]

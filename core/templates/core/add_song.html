@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'song_list' %}">Library</a></li>
+                    <li class="breadcrumb-item active">New Song</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Compose New Song</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Song Title</label>
+                            {{ form.title }}
+                            <small class="text-muted">Give your masterpiece a name.</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label font-weight-bold">Tempo (BPM)</label>
+                                {{ form.tempo_bpm }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Note Sequence (JSON Format)</label>
+                            {{ form.note_sequence }}
+                            <div class="alert alert-info mt-2 py-2">
+                                <small>
+                                    <strong>Format Guide:</strong> Use square brackets and double quotes. <br>
+                                    <code>["C4", "E4", "G4", "C5"]</code>
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'song_list' %}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-success px-5">Save to Library</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h5>Common Sequences</h5>
+                <div class="card">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>C-Major:</strong> <code>["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"]</code></span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('[\"C4\", \"D4\", \"E4\", \"F4\", \"G4\", \"A4\", \"B4\", \"C5\"]')">Copy</button>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>Arpeggio:</strong> <code>["C4", "E4", "G4", "C5", "G4", "E4", "C4"]</code></span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('[\"C4\", \"E4\", \"G4\", \"C5\", \"G4\", \"E4\", \"C4\"]')">Copy</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text);
+        alert("Sequence copied! Paste it into the Note Sequence box.");
+    }
+</script>
+{% endblock %}

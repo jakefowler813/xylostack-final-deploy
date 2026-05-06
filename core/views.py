@@ -6,6 +6,8 @@ from .forms import StackForm, KeyFormSet, inlineformset_factory
 from django.http import JsonResponse 
 from django.contrib import messages
 from django import forms
+from django.db.models import Q
+
 
 def home(request):
     return render(request, 'core/index.html')
@@ -84,10 +86,19 @@ def edit_stack(request, stack_id):
 
 def song_list(request):
     query = request.GET.get('q')
-    if query:
-        songs = Song.objects.filter(title__icontains=query)
+    
+    # Filter: Show public songs OR songs user created themself
+    if request.user.is_authenticated:
+        base_songs = Song.objects.filter(Q(is_public=True) | Q(author=request.user))
     else:
-        songs = Song.objects.all()
+        # If not logged in, only show public songs
+        base_songs = Song.objects.filter(is_public=True)
+
+    if query:
+        songs = base_songs.filter(title__icontains=query)
+    else:
+        songs = base_songs
+        
     return render(request, 'core/song_list.html', {'songs': songs})
 
 def song_detail_api(request, song_id):
@@ -127,4 +138,18 @@ def help_page(request):
 @login_required
 def profile(request):
     return render(request, 'core/profile.html')
+
+@login_required
+def add_song(request):
+    if request.method == 'POST':
+        form = SongForm(request.POST)
+        if form.is_valid():
+            song = form.save(commit=False)
+            song.author = request.user # Automatically assign the logged-in user
+            song.save()
+            messages.success(request, f"'{song.title}' saved to your library!")
+            return redirect('song_list')
+    else:
+        form = SongForm()
+    return render(request, 'core/add_song.html', {'form': form})
 
