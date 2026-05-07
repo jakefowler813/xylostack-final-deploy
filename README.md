@@ -1,57 +1,60 @@
-# Xylostack: A Full-Stack Digital Instrument & Library
+# XyloStack: The Visual Music Engine
 
-**Live Project:** [https://finalproject.jakef.tech](https://finalproject.jakef.tech)  
-**Developer:** Jake Fowler  
-**Institution:** James Madison University - Computer Science  
-**Date:** May 2026
+**Live Site:** [https://finalproject.jakef.tech](https://finalproject.jakef.tech)  
+**Author:** Jake Fowler (JMU Computer Science, Class of 2026)
 
-## Project Overview
-
-Xylostack is a web-based digital instrument platform that allows users to design, play, and share custom xylophone "stacks." Users can map specific musical notes to visual interfaces, save unique instrument configurations, and build a library of melodic sequences stored in a production-grade database.
+XyloStack is a full-stack musical application designed to bridge the gap between sheet music and visual learning. By allowing users to map specific musical pitches to custom color schemes, the platform provides an intuitive, color-coded interface for learning and playing melodies.
 
 ---
 
-## Technical Claims & Evidence
+## 🚀 Key Features & Technical Claims
 
-### 1. Production-Grade Deployment & Infrastructure
+### 1. Multi-User CRUD Architecture
 
-* **Claim:** Successfully deployed a Django application to a cloud environment with custom domain mapping and SSL encryption.
-* **Evidence:** The application is live at `finalproject.jakef.tech`. Infrastructure is managed via the **DigitalOcean App Platform**, utilizing Gunicorn as the WSGI server and WhiteNoise for efficient static file serving.
+* **Instrument Stacks:** Users can create, edit, and delete custom "Instrument Stacks".
+* **User-Generated Content (UGC):** Logged-in users can compose and save their own songs using a custom JSON-based note sequence system.
+* **Object-Level Permissions:** Implemented strict backend logic to ensure users can only edit or delete their own data, while maintaining read-access to "Universal" admin-provided content.
 
-### 2. Relational Database Management (PostgreSQL)
+### 2. State-Persistent Navigation System
 
-* **Claim:** Migrated from a local development database (SQLite) to a managed production relational database, handling complex schema migrations and permission configurations.
-* **Evidence:** Integrated a **Managed PostgreSQL** instance on DigitalOcean. Successfully executed remote migrations and handled Postgres 15+ schema permissioning (`GRANT ALL ON SCHEMA public`) to ensure data persistence for Users, Stacks, and Songs.
+* **Navigation Loop Resolution:** Solved the UX challenge of bridging instrument selection and song playback. By passing `stack_id` parameters through the URL, the application maintains the selected instrument context while browsing the song library.
 
-### 3. Full-Stack Data Modeling
+### 3. RESTful Web Service (API)
 
-* **Claim:** Designed and implemented a relational schema that supports custom instrument mapping and musical sequences.
-* **Evidence:** * **InstrumentStack Model:** Stores custom note-to-color mappings (JSONField) and metadata.
-  * **Song Model:** Utilizes JSON arrays to store melodic sequences, allowing for programmatic playback of user-generated content.
-  * **User Relationship:** Implemented One-to-Many relationships allowing users to own and manage their personal library of instruments.
+* **List Endpoint (`/api/songs/`):** A public-facing JSON API that exposes the community song library for external consumption.
+* **Detail Endpoint (`/api/songs/<id>/`):** A granular data resource for individual song parameters, including Title, BPM, and the raw Note Sequence.
+* **JSON Serialization:** Song data is stored and served using standardized JSON arrays to ensure compatibility with modern performance tools.
 
-### 4. Advanced Security Configuration
+### 4. Search & Discovery Engine
 
-* **Claim:** Implemented production-level security protocols to protect user data and server integrity.
-* **Evidence:** * Configured `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` to prevent cross-site request forgery on the live domain.
-  * Managed sensitive credentials (Secret Keys, Database URLs) via secure Environment Variables rather than hardcoding.
-  * Toggled `DEBUG` mode to `False` in production to prevent sensitive traceback exposure.
-
-### 5. Interactive Frontend & Audio Logic
-
-* **Claim:** Developed a low-latency interactive interface for real-time audio playback based on dynamic database state.
-* **Evidence:** The "Rainbow Octave" stack dynamically renders UI keys based on database-stored hex codes and note mappings, triggering high-fidelity audio samples via the browser's Web Audio API.
+* **Dynamic Filtering:** A built-in search engine that filters the community library by song title while preserving the selected instrument context.
+* **Visibility Control:** A "Public/Private" toggle system allowing users to keep compositions personal or contribute them to the global community library and API.
 
 ---
 
-## Tech Stack
+## Technical Stack
 
-* **Backend:** Django (Python 3.12+)
-* **Database:** PostgreSQL (Managed via DigitalOcean)
-* **Frontend:** HTML5, CSS3, JavaScript (ES6+)
-* **Hosting:** DigitalOcean App Platform
-* **Static Assets:** WhiteNoise
-* **Domain Management:** get.tech DNS with CNAME Aliasing
+* **Backend:** Python 3.12, Django 5.x
+* **Database:** PostgreSQL (Production), SQLite (Local Development)
+* **Frontend:** Bootstrap 5, Custom CSS3, JavaScript (DOM & Clipboard API)
+* **Deployment:** DigitalOcean App Platform
+* **Production Tools:** Gunicorn, WhiteNoise (Static File Management), Environment Variables for Secret Key management.
+
+---
+
+## Project Architecture
+
+* **InstrumentStack:** Linked to a `User` (Owner) and contains a collection of `XyloKey` objects.
+* **XyloKey:** Defines the relationship between a musical pitch (e.g., C4), a hex color code, and its display order.
+* **Song:** Stores musical metadata and the JSON-formatted `note_sequence`. Links to an optional `Author` and uses a visibility boolean for library inclusion.
+
+---
+
+## Security & Best Practices
+
+* **CSRF Protection:** Integrated Django CSRF tokens for all state-changing forms.
+* **Secure Deployment:** `DEBUG` mode is disabled in production. Sensitive credentials (SECRET_KEY, DATABASE_URL) are handled via server-side environment variables.
+* **Defensive Design:** Implemented "Confirm Deletion" screens and server-side validation to prevent accidental data loss or unauthorized URL manipulation.
 
 ---
 
@@ -60,8 +63,8 @@ Xylostack is a web-based digital instrument platform that allows users to design
 1. **Clone the repository:**
 
     ```bash
-    git clone [https://github.com/](https://github.com/)[your-username]/xylostack.git
-    cd xylostack
+    git clone https://github.com/347s26/347s26-final-project-team-jake.git
+    cd 347s26-final-project-team-jake
     ```
 
 2. **Setup Virtual Environment:**
@@ -95,7 +98,7 @@ Xylostack is a web-based digital instrument platform that allows users to design
 
 ---
 
-## Future Roadmap
+## Future Goals
 
 * **MIDI Support:** Allow users to play their custom stacks using external MIDI controllers.
 * **Social Sharing:** Implementation of public/private toggles for song sequences to allow community collaboration.
