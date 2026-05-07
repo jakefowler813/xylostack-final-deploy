@@ -86,7 +86,7 @@ def edit_stack(request, stack_id):
 
 def song_list(request):
     query = request.GET.get('q')
-    selected_stack_id = request.GET.get('stack') # Look for ?stack=ID
+    selected_stack_id = request.GET.get('stack')
     
     if request.user.is_authenticated:
         base_songs = Song.objects.filter(Q(is_public=True) | Q(author=request.user))
@@ -100,8 +100,54 @@ def song_list(request):
         
     return render(request, 'core/song_list.html', {
         'songs': songs,
-        'stack_id': selected_stack_id # Pass the stack ID to the template
+        'stack_id': selected_stack_id
     })
+
+@login_required
+def add_song(request):
+    if request.method == 'POST':
+        form = SongForm(request.POST)
+        if form.is_valid():
+            song = form.save(commit=False)
+            song.author = request.user
+            song.save()
+            messages.success(request, f"'{song.title}' saved!")
+            return redirect('song_list')
+    else:
+        form = SongForm()
+    return render(request, 'core/add_song.html', {'form': form})
+
+@login_required
+def edit_song(request, song_id):
+    song = get_object_or_404(Song, id=song_id)
+    # Security: Only owner or admin can edit
+    if song.author != request.user and not request.user.is_staff:
+        messages.error(request, "Permission denied.")
+        return redirect('song_list')
+
+    if request.method == "POST":
+        form = SongForm(request.POST, instance=song)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Changes saved!")
+            return redirect('song_list')
+    else:
+        form = SongForm(instance=song)
+    return render(request, 'core/edit_song.html', {'form': form, 'song': song})
+
+@login_required
+def delete_song(request, song_id):
+    song = get_object_or_404(Song, id=song_id)
+    # Security: Only owner or admin can delete
+    if song.author != request.user and not request.user.is_staff:
+        messages.error(request, "Permission denied.")
+        return redirect('song_list')
+
+    if request.method == "POST":
+        song.delete()
+        messages.warning(request, "Song deleted.")
+        return redirect('song_list')
+    return render(request, 'core/delete_song_confirm.html', {'song': song})
 
 def song_list_api(request):
     # Fetch all songs that are marked as public
@@ -136,42 +182,6 @@ def song_detail_api(request, song_id):
     return JsonResponse(data)
 
 @login_required
-def edit_song(request, song_id):
-    song = get_object_or_404(Song, id=song_id)
-    
-    # Permission Gate
-    if song.author != request.user and not request.user.is_staff:
-        messages.error(request, "Access denied: You can only edit your own compositions.")
-        return redirect('song_list')
-
-    if request.method == "POST":
-        form = SongForm(request.POST, instance=song)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f"'{song.title}' updated successfully.")
-            return redirect('song_list')
-    else:
-        form = SongForm(instance=song)
-        
-    return render(request, 'core/edit_song.html', {'form': form, 'song': song})
-
-@login_required
-def delete_song(request, song_id):
-    song = get_object_or_404(Song, id=song_id)
-    
-    # Permission Gate
-    if song.author != request.user and not request.user.is_staff:
-        messages.error(request, "Access denied: You cannot delete this song.")
-        return redirect('song_list')
-
-    if request.method == "POST":
-        song.delete()
-        messages.warning(request, f"Song '{song.title}' has been permanently removed.")
-        return redirect('song_list')
-        
-    return render(request, 'core/delete_song_confirm.html', {'song': song})
-
-@login_required
 def play_song(request, song_id, stack_id):
     song = get_object_or_404(Song, id=song_id)
     stack = get_object_or_404(InstrumentStack, id=stack_id, owner=request.user)
@@ -197,18 +207,3 @@ def help_page(request):
 @login_required
 def profile(request):
     return render(request, 'core/profile.html')
-
-@login_required
-def add_song(request):
-    if request.method == 'POST':
-        form = SongForm(request.POST)
-        if form.is_valid():
-            song = form.save(commit=False)
-            song.author = request.user # Automatically assign the logged-in user
-            song.save()
-            messages.success(request, f"'{song.title}' saved to your library!")
-            return redirect('song_list')
-    else:
-        form = SongForm()
-    return render(request, 'core/add_song.html', {'form': form})
-
