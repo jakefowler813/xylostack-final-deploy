@@ -102,26 +102,30 @@ function applyCMajorTemplate() {
     const addBtn = document.getElementById('add-key-btn');
     if (!addBtn) return;
 
+    // 1. Create all 8 rows instantly
+    for (let i = 0; i < template.length; i++) {
+        addBtn.click();
+    }
+
+    // 2. Identify the rows that were just added
+    const allRows = document.querySelectorAll('.key-form-row');
+    const startIndex = allRows.length - template.length;
+
+    // 3. Populate the values directly
     template.forEach((item, index) => {
-        // use a small timeout so the keys "pop" in one by one
-        setTimeout(() => {
-            addBtn.click(); // triggers existing logic to create the row
+        const currentRow = allRows[startIndex + index];
+        if (currentRow) {
+            const pitchInput = currentRow.querySelector('input[name*="-pitch"]');
+            const colorInput = currentRow.querySelector('input[name*="-color_hex"]');
 
-            const rows = document.querySelectorAll('.key-form-row');
-            const lastRow = rows[rows.length - 1];
-
-            if (lastRow) {
-                const pitchInput = lastRow.querySelector('input[name*="-pitch"]');
-                const colorInput = lastRow.querySelector('input[name*="-color_hex"]');
-
-                if (pitchInput) pitchInput.value = item.note;
-                if (colorInput) colorInput.value = item.color;
-
-                // tells 'updatePreview' function to refresh the visuals
-                pitchInput.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        }, index * 80); // 80ms delay between keys for a smooth visual effect
+            if (pitchInput) pitchInput.value = item.note;
+            if (colorInput) colorInput.value = item.color;
+        }
     });
+
+    if (typeof updatePreview === 'function') {
+        updatePreview();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
