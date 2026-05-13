@@ -98,30 +98,33 @@ function applyCMajorTemplate() {
         { note: "C5", color: "#FF1493" }  // Pink
     ];
 
+    const container = document.getElementById('formset-container');
+    const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
     const addBtn = document.getElementById('add-key-btn');
-    if (!addBtn) return;
 
-    // 1. Create all 8 rows instantly
-    for (let i = 0; i < template.length; i++) {
-        addBtn.click();
-    }
+    if (!container || !totalForms || !addBtn) return;
 
-    // 2. Identify the rows that were just added
-    const allRows = document.querySelectorAll('.key-form-row');
-    const startIndex = allRows.length - template.length;
+    // 1. Wipe existing rows and reset the Django Management Form counter
+    container.innerHTML = '';
+    totalForms.value = 0;
 
-    // 3. Populate the values directly
-    template.forEach((item, index) => {
-        const currentRow = allRows[startIndex + index];
-        if (currentRow) {
-            const pitchInput = currentRow.querySelector('input[name*="-pitch"]');
-            const colorInput = currentRow.querySelector('input[name*="-color_hex"]');
+    // 2. Add the template keys
+    template.forEach((item) => {
+        addBtn.click(); 
+
+        const rows = document.querySelectorAll('.key-form-row');
+        const lastRow = rows[rows.length - 1];
+
+        if (lastRow) {
+            const pitchInput = lastRow.querySelector('input[name*="-pitch"]');
+            const colorInput = lastRow.querySelector('input[name*="-color_hex"]');
 
             if (pitchInput) pitchInput.value = item.note;
             if (colorInput) colorInput.value = item.color;
         }
     });
 
+    // 3. Final visual sync for the 'Live Preview' bar
     if (typeof updatePreview === 'function') {
         updatePreview();
     }
