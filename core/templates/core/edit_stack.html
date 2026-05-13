@@ -24,9 +24,14 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h5 class="fw-bold mb-0">Key Configuration</h5>
-        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="add-key-btn">
-            <i class="bi bi-plus-circle me-1"></i> Add Key
-        </button>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-info btn-sm rounded-pill px-3" onclick="applyCMajorTemplate()">
+                ✨ C-Major Template
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="add-key-btn">
+                <i class="bi bi-plus-circle me-1"></i> Add Key
+            </button>
+        </div>
     </div>
 
     {{ formset.management_form }}
@@ -81,6 +86,43 @@
 </style>
 
 <script>
+function applyCMajorTemplate() {
+    const template = [
+        { note: "C4", color: "#FF0000" }, // Red
+        { note: "D4", color: "#FF8C00" }, // Orange
+        { note: "E4", color: "#FFFF00" }, // Yellow
+        { note: "F4", color: "#00FF00" }, // Green
+        { note: "G4", color: "#0000FF" }, // Blue
+        { note: "A4", color: "#4B0082" }, // Indigo
+        { note: "B4", color: "#9400D3" }, // Purple
+        { note: "C5", color: "#FF1493" }  // Pink
+    ];
+
+    const addBtn = document.getElementById('add-key-btn');
+    if (!addBtn) return;
+
+    template.forEach((item, index) => {
+        // use a small timeout so the keys "pop" in one by one
+        setTimeout(() => {
+            addBtn.click(); // triggers existing logic to create the row
+
+            const rows = document.querySelectorAll('.key-form-row');
+            const lastRow = rows[rows.length - 1];
+
+            if (lastRow) {
+                const pitchInput = lastRow.querySelector('input[name*="-pitch"]');
+                const colorInput = lastRow.querySelector('input[name*="-color_hex"]');
+
+                if (pitchInput) pitchInput.value = item.note;
+                if (colorInput) colorInput.value = item.color;
+
+                // tells 'updatePreview' function to refresh the visuals
+                pitchInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }, index * 80); // 80ms delay between keys for a smooth visual effect
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('formset-container');
     const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
